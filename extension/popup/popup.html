@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gmail Automation</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-900: #0f0f0f;
+      --bg-800: #161616;
+      --bg-700: #1e1e1e;
+      --bg-600: #242424;
+      --brand-500: #0ea5e9;
+      --brand-600: #0284c7;
+      --brand-400: #38bdf8;
+      --text-primary: rgba(255,255,255,0.9);
+      --text-secondary: rgba(255,255,255,0.5);
+      --text-muted: rgba(255,255,255,0.25);
+      --border: rgba(255,255,255,0.07);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    html { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+
+    body {
+      width: 400px;
+      min-height: 560px;
+      background: var(--bg-900);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ───────────────────────────────────── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--bg-800);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .logo-text { font-weight: 700; font-size: 14px; }
+    .logo-sub { font-size: 10px; color: var(--brand-400); margin-top: 1px; }
+
+    .header-actions { display: flex; gap: 8px; }
+
+    .icon-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-700);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { background: var(--bg-600); color: var(--text-primary); }
+
+    /* ── Tabs ─────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: var(--bg-800);
+      border-bottom: 1px solid var(--border);
+      padding: 0 8px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 4px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .tab:hover { color: var(--text-secondary); }
+    .tab.active { color: var(--brand-400); border-bottom-color: var(--brand-500); }
+
+    /* ── Content ──────────────────────────────────── */
+    .content { padding: 14px 16px; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── Form Elements ────────────────────────────── */
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      background: var(--bg-700);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(14, 165, 233, 0.4);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .field { margin-bottom: 12px; }
+
+    /* ── Buttons ──────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand-600), var(--brand-500));
+      color: white;
+      width: 100%;
+      padding: 10px;
+    }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.15);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.25);
+    }
+    .btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.25); }
+
+    .btn-warning {
+      background: rgba(245,158,11,0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245,158,11,0.25);
+    }
+    .btn-warning:hover:not(:disabled) { background: rgba(245,158,11,0.25); }
+
+    .btn-success {
+      background: rgba(16,185,129,0.15);
+      color: #34d399;
+      border: 1px solid rgba(16,185,129,0.25);
+    }
+    .btn-success:hover:not(:disabled) { background: rgba(16,185,129,0.25); }
+
+    .btn-ghost {
+      background: var(--bg-700);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--bg-600); color: var(--text-primary); }
+
+    .btn-row { display: flex; gap: 6px; margin-top: 6px; }
+    .btn-row .btn { flex: 1; }
+
+    /* ── Recipients ───────────────────────────────── */
+    .recipient-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 6px;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      background: var(--bg-600);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .tag .remove {
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+    }
+    .tag .remove:hover { color: var(--error); }
+
+    .tag.sent { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #34d399; }
+    .tag.failed { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #f87171; }
+    .tag.sending { background: rgba(14,165,233,0.1); border-color: rgba(14,165,233,0.3); color: var(--brand-400); }
+
+    .csv-upload {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 11px;
+      transition: all 0.15s;
+      margin-top: 6px;
+    }
+    .csv-upload:hover { border-color: rgba(14,165,233,0.4); color: var(--brand-400); }
+
+    /* ── Progress ─────────────────────────────────── */
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-600);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--brand-600), var(--brand-400));
+      transition: width 0.5s ease;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .stat-box {
+      background: var(--bg-700);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      text-align: center;
+    }
+    .stat-num { font-size: 20px; font-weight: 700; line-height: 1; }
+    .stat-label { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+    .stat-box.sent .stat-num { color: var(--success); }
+    .stat-box.failed .stat-num { color: var(--error); }
+    .stat-box.pending .stat-num { color: var(--text-secondary); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .status-badge.running { background: rgba(14,165,233,0.15); color: var(--brand-400); }
+    .status-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; }
+    .status-badge.paused { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .status-badge.stopped { background: rgba(239,68,68,0.15); color: #f87171; }
+    .status-badge.pending { background: var(--bg-600); color: var(--text-secondary); }
+
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .dot.pulse { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Logs ─────────────────────────────────────── */
+    .log-container {
+      background: var(--bg-900);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      height: 110px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+    }
+
+    .log-entry { margin-bottom: 3px; display: flex; gap: 6px; }
+    .log-time { color: var(--text-muted); flex-shrink: 0; }
+    .log-msg.success { color: #34d399; }
+    .log-msg.error { color: #f87171; }
+    .log-msg.warning { color: #fbbf24; }
+    .log-msg.info { color: var(--text-secondary); }
+
+    /* ── Settings ─────────────────────────────────── */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { font-size: 12px; color: var(--text-primary); }
+    .setting-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+    .toggle {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--bg-600);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle.on { background: var(--brand-600); border-color: var(--brand-500); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: white;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .toggle.on::after { left: 18px; }
+
+    /* ── Delay slider ─────────────────────────────── */
+    .delay-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .delay-row input[type=number] { padding: 6px 8px; }
+
+    /* ── Placeholder tips ─────────────────────────── */
+    .placeholder-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(14,165,233,0.1);
+      color: var(--brand-400);
+      border: 1px solid rgba(14,165,233,0.2);
+      cursor: pointer;
+      font-family: monospace;
+      transition: background 0.15s;
+    }
+    .pill:hover { background: rgba(14,165,233,0.2); }
+
+    /* ── Toast ────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      background: var(--bg-600);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 12px;
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.3s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── No queue placeholder ─────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 8px; }
+    .empty-text { font-size: 12px; }
+
+    /* ── Section header ───────────────────────────── */
+    .section-header {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* ── Scrollbars ───────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">📧</div>
+      <div>
+        <div class="logo-text">Gmail Automation</div>
+        <div class="logo-sub">Bulk Email Sender</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btn-dashboard" title="Open Dashboard">🖥️</button>
+      <button class="icon-btn" id="btn-refresh" title="Refresh">🔄</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="compose">✉️ Compose</div>
+    <div class="tab" data-tab="progress">📊 Progress</div>
+    <div class="tab" data-tab="settings">⚙️ Settings</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ── Compose Panel ───────────────────────────── -->
+    <div class="panel active" id="panel-compose">
+
+      <div class="field">
+        <label>From Name</label>
+        <input type="text" id="from-name" placeholder="Your Name or Company" />
+      </div>
+
+      <div class="field">
+        <label>Recipients</label>
+        <input
+          type="text"
+          id="recipient-input"
+          placeholder="email@example.com (press Enter or comma)"
+        />
+        <div class="recipient-tags" id="recipient-tags"></div>
+        <div class="csv-upload" id="csv-upload-area">
+          📎 Upload CSV file (email, name, company columns)
+          <input type="file" id="csv-file" accept=".csv" style="display:none" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Subject</label>
+        <input type="text" id="subject" placeholder="Hi {{name}}, we have something for you!" />
+      </div>
+
+      <div class="field">
+        <label>Message (HTML supported)</label>
+        <div class="placeholder-pills" id="placeholder-pills">
+          <span class="pill" data-ph="{{name}}">{{name}}</span>
+          <span class="pill" data-ph="{{email}}">{{email}}</span>
+          <span class="pill" data-ph="{{company}}">{{company}}</span>
+          <span class="pill" data-ph="{{city}}">{{city}}</span>
+        </div>
+        <textarea id="message" placeholder="Hi {{name}},&#10;&#10;Your personalized message here...&#10;&#10;Best regards"></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="btn-send">
+        🚀 Start Campaign
+      </button>
+
+    </div>
+
+    <!-- ── Progress Panel ──────────────────────────── -->
+    <div class="panel" id="panel-progress">
+      <div id="no-queue" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <div class="empty-text">No active campaign</div>
+        <div style="font-size:11px;margin-top:6px;color:var(--text-muted)">Start sending from the Compose tab</div>
+      </div>
+
+      <div id="queue-view" style="display:none">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div class="status-badge pending" id="status-badge">
+            <div class="dot"></div>
+            <span id="status-text">pending</span>
+          </div>
+          <span style="font-size:10px; color:var(--text-muted)" id="queue-id-label"></span>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted)">
+          <span id="progress-label">0 / 0</span>
+          <span id="progress-pct">0%</span>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box sent">
+            <div class="stat-num" id="stat-sent">0</div>
+            <div class="stat-label">Sent</div>
+          </div>
+          <div class="stat-box failed">
+            <div class="stat-num" id="stat-failed">0</div>
+            <div class="stat-label">Failed</div>
+          </div>
+          <div class="stat-box pending">
+            <div class="stat-num" id="stat-pending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+
+        <div class="btn-row" id="queue-controls">
+          <button class="btn btn-warning" id="btn-pause">⏸ Pause</button>
+          <button class="btn btn-danger" id="btn-stop">⏹ Stop</button>
+        </div>
+        <div style="display:none" id="btn-resume-row">
+          <button class="btn btn-success" id="btn-resume" style="width:100%; margin-top:6px;">▶ Resume</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="section-header">Activity Log</div>
+          <div class="log-container" id="log-container">
+            <div class="log-entry">
+              <span class="log-time">--:--:--</span>
+              <span class="log-msg info">Waiting for campaign to start...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Settings Panel ──────────────────────────── -->
+    <div class="panel" id="panel-settings">
+
+      <div class="section-header">SMTP Configuration</div>
+
+      <div class="field">
+        <label>Gmail Address</label>
+        <input type="email" id="settings-gmail" placeholder="yourname@gmail.com" />
+      </div>
+
+      <div class="field">
+        <label>App Password</label>
+        <input type="password" id="settings-password" placeholder="xxxx xxxx xxxx xxxx" />
+      </div>
+
+      <button class="btn btn-ghost" id="btn-verify" style="width:100%; margin-bottom:14px;">
+        🔌 Verify Connection
+      </button>
+
+      <div id="verify-result" style="display:none; margin-bottom:14px; font-size:11px; padding:8px 10px; border-radius:6px;"></div>
+
+      <div class="section-header">Sending Preferences</div>
+
+      <div class="delay-row field">
+        <div>
+          <label>Min Delay (sec)</label>
+          <input type="number" id="settings-delay-min" value="2" min="1" max="30" />
+        </div>
+        <div>
+          <label>Max Delay (sec)</label>
+          <input type="number" id="settings-delay-max" value="5" min="1" max="60" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Backend API URL</label>
+        <input type="text" id="settings-api-url" placeholder="http://localhost:5000/api" />
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Auto-retry failed</div>
+          <div class="setting-sub">Retry each failed email up to 2 times</div>
+        </div>
+        <div class="toggle on" id="toggle-retry"></div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Desktop notifications</div>
+          <div class="setting-sub">Show alerts when campaigns complete</div>
+        </div>
+        <div class="toggle on" id="toggle-notifications"></div>
+      </div>
+
+      <button class="btn btn-primary" id="btn-save-settings" style="margin-top:14px;">
+        💾 Save Settings
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

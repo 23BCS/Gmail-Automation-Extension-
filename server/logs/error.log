@@ -1,0 +1,6 @@
+[2026-05-14 03:23:32] ERROR: ❌ MongoDB connection error:
+[2026-05-14 03:24:23] ERROR: ❌ MongoDB connection error:
+[2026-05-14 03:24:27] ERROR: ❌ MongoDB connection error:
+[2026-05-14 03:35:14] ERROR: ❌ MongoDB connection failed: bad auth : authentication failed
+[2026-05-14 03:35:47] ERROR: ❌ MongoDB connection failed: bad auth : authentication failed
+[2026-05-14 03:37:28] ERROR: ❌ MongoDB connection failed: bad auth : authentication failed
