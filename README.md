@@ -159,4 +159,4 @@ REACT_APP_API_URL=http://localhost:5000/api
 
 ## 📄 License
 
-MIT © 2024 Gmail Automation Extension
+ ARG © 2026  Gmail Automation Extension
