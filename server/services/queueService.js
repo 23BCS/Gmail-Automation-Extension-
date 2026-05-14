@@ -153,20 +153,33 @@ const startQueue = async (queueId) => {
   addLog(queue, 'info', `Queue ${queue.status === STATUS.PAUSED ? 'resumed' : 'started'} | ${queue.totalCount} recipients`);
   logger.info(`▶️ Queue ${queueId} started from index ${queue.currentIndex}`);
 
+  // ── Interruptible sleep: checks stop/pause every 200ms during delay ──────
+  const interruptibleSleep = async (ms) => {
+    const step = 200;
+    let elapsed = 0;
+    while (elapsed < ms) {
+      await sleep(Math.min(step, ms - elapsed));
+      elapsed += step;
+      // Re-read queue status on every tick so stop/pause is near-instant
+      const q = queues.get(queueId);
+      if (!q || q.status === STATUS.STOPPED || q.status === STATUS.PAUSED) return;
+    }
+  };
+
   // Process emails sequentially (non-blocking)
   (async () => {
     for (let i = queue.currentIndex; i < queue.recipients.length; i++) {
-      // Check for stop/pause signal
+      // Re-read queue on every iteration — catches stop/pause set from outside
       const current = queues.get(queueId);
+
       if (!current || current.status === STATUS.STOPPED) {
-        addLog(queue, 'info', 'Queue stopped by user');
-        logger.info(`⏹️ Queue ${queueId} stopped`);
+        addLog(queue, 'info', `Queue stopped by user at email ${i + 1}/${queue.totalCount}`);
+        logger.info(`⏹️ Queue ${queueId} stopped at index ${i}`);
         return;
       }
 
       if (current.status === STATUS.PAUSED) {
-        // Save position and exit loop — will resume from here
-        queue.currentIndex = i;
+        queue.currentIndex = i; // remember where to resume
         addLog(queue, 'info', `Queue paused at email ${i + 1}/${queue.totalCount}`);
         logger.info(`⏸️ Queue ${queueId} paused at index ${i}`);
         return;
@@ -174,20 +187,31 @@ const startQueue = async (queueId) => {
 
       queue.currentIndex = i;
       const recipient = queue.recipients[i];
-
-      if (recipient.status === 'sent') continue; // skip already sent (resume case)
+      if (recipient.status === 'sent') continue; // skip already-sent on resume
 
       await processRecipient(queue, recipient);
 
-      // Add delay between emails (except after last)
+      // Interruptible delay — stop/pause takes effect within 200ms
       if (i < queue.recipients.length - 1) {
         const delay = getRandomDelay(queue.delayMin, queue.delayMax);
         addLog(queue, 'info', `Waiting ${(delay / 1000).toFixed(1)}s before next email...`);
-        await sleep(delay);
+        await interruptibleSleep(delay);
+
+        // Check again after sleep in case stop was triggered during wait
+        const afterSleep = queues.get(queueId);
+        if (!afterSleep || afterSleep.status === STATUS.STOPPED) {
+          addLog(queue, 'info', 'Queue stopped during delay');
+          return;
+        }
+        if (afterSleep.status === STATUS.PAUSED) {
+          queue.currentIndex = i + 1;
+          addLog(queue, 'info', `Queue paused after email ${i + 1}`);
+          return;
+        }
       }
     }
 
-    // Queue completed
+    // Completed naturally
     queue.status = STATUS.COMPLETED;
     queue.completedAt = new Date().toISOString();
     addLog(queue, 'info', `✅ Queue completed | Sent: ${queue.sentCount} | Failed: ${queue.failedCount}`);
