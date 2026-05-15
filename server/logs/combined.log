@@ -3828,3 +3828,51 @@
 [2026-05-16 04:05:03] INFO: 📤 Sending to amruta@greatplaceitservices.com from arg408321@gmail.com
 [2026-05-16 04:05:09] INFO: ✅ Sent to amruta@greatplaceitservices.com | ID: <944e4d2b-4601-b714-6247-99985a8b036a@gmail.com>
 [2026-05-16 04:05:11] INFO: 📤 Sending to amulya.ms@utthunga.com from arg408321@gmail.com
+[2026-05-16 04:05:17] INFO: ✅ Sent to amulya.ms@utthunga.com | ID: <7623dd38-a927-b50e-0d54-b7723606d030@gmail.com>
+[2026-05-16 04:05:19] INFO: 📤 Sending to anand.christopher@grassrootsbpo.com from arg408321@gmail.com
+[2026-05-16 04:05:25] INFO: ✅ Sent to anand.christopher@grassrootsbpo.com | ID: <2e97d5d4-5f1b-033d-85e6-71f6baf5eaa8@gmail.com>
+[2026-05-16 04:05:26] INFO: 📤 Sending to anand.e@increff.com from arg408321@gmail.com
+[2026-05-16 04:05:29] INFO: ::1 - - [15/May/2026:22:35:29 +0000] "GET /api/email/status/26e11660-f898-4f8f-b142-e03c669e6469 HTTP/1.1" 200 227666 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+[2026-05-16 04:05:32] INFO: ✅ Sent to anand.e@increff.com | ID: <9933bac0-828e-a6c3-5147-52e607d7fd25@gmail.com>
+[2026-05-16 04:05:33] INFO: 📤 Sending to ak@8kmiles.com from arg408321@gmail.com
+[2026-05-16 04:05:39] INFO: ✅ Sent to ak@8kmiles.com | ID: <cf1dfaf7-642e-11f7-5a94-38b448759de3@gmail.com>
+[2026-05-16 04:05:41] INFO: 📤 Sending to anandk@pharmarack.com from arg408321@gmail.com
+[2026-05-16 04:05:47] INFO: ✅ Sent to anandk@pharmarack.com | ID: <317b1fdf-a3ba-0d41-0a24-0355f79e42db@gmail.com>
+[2026-05-16 04:05:48] INFO: 📤 Sending to anand.r@whatarage.com from arg408321@gmail.com
+[2026-05-16 04:05:54] INFO: ✅ Sent to anand.r@whatarage.com | ID: <e57476a5-7186-c2fc-6bf3-60edef4ec571@gmail.com>
+[2026-05-16 04:05:55] INFO: 📤 Sending to anand@hubilo.com from arg408321@gmail.com
+[2026-05-16 04:06:02] INFO: ✅ Sent to anand@hubilo.com | ID: <65030645-3c00-63f0-47cb-3167f88d2d05@gmail.com>
+[2026-05-16 04:06:03] INFO: 📤 Sending to anand@auzmor.com from arg408321@gmail.com
+[2026-05-16 04:06:09] INFO: ✅ Sent to anand@auzmor.com | ID: <247babc0-2f96-67e6-626f-923e28f22101@gmail.com>
+[2026-05-16 04:06:11] INFO: 📤 Sending to anand@capsitech.com from arg408321@gmail.com
+[2026-05-16 04:06:17] INFO: ✅ Sent to anand@capsitech.com | ID: <91628a75-459b-b59e-4f73-537bb7b5b0f8@gmail.com>
+[2026-05-16 04:06:18] INFO: 📤 Sending to athiagarajan@inniveinc.com from arg408321@gmail.com
+[2026-05-16 04:06:24] INFO: ✅ Sent to athiagarajan@inniveinc.com | ID: <7a77702d-b70e-c2de-d5ee-3685f3005ecf@gmail.com>
+[2026-05-16 04:06:26] INFO: 📤 Sending to anandhi.s@dsmsoft.com from arg408321@gmail.com
+[2026-05-16 04:06:29] INFO: ::1 - - [15/May/2026:22:36:29 +0000] "GET /api/email/status/26e11660-f898-4f8f-b142-e03c669e6469 HTTP/1.1" 200 230538 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+[2026-05-16 04:06:32] INFO: ✅ Sent to anandhi.s@dsmsoft.com | ID: <5131f87a-fda6-f43b-923e-67528f1b51e9@gmail.com>
+[2026-05-16 04:06:33] INFO: 📤 Sending to ananthram.iyer@customercentria.com from arg408321@gmail.com
+[2026-05-16 04:06:39] INFO: ✅ Sent to ananthram.iyer@customercentria.com | ID: <71d28173-5eba-7b82-5c22-40e96ef8885e@gmail.com>
+[2026-05-16 04:06:41] INFO: 📤 Sending to anrastogi@enhanceit.com from arg408321@gmail.com
+[2026-05-16 04:06:47] INFO: ✅ Sent to anrastogi@enhanceit.com | ID: <723f5866-11be-25e5-5593-daf4b60cc450@gmail.com>
+[2026-05-16 04:06:48] INFO: 📤 Sending to aarasina@teksystems.com from arg408321@gmail.com
+[2026-05-16 04:06:54] INFO: ✅ Sent to aarasina@teksystems.com | ID: <ec103fe9-4800-be27-8e18-7b58d335fd69@gmail.com>
+[2026-05-16 04:06:55] INFO: 📤 Sending to angel.mathew@delphix.com from arg408321@gmail.com
+[2026-05-16 04:07:02] INFO: ✅ Sent to angel.mathew@delphix.com | ID: <b4457a0a-fd9a-da9a-d5fe-7e6bdf9d9874@gmail.com>
+[2026-05-16 04:07:04] INFO: 📤 Sending to anil.chandra@thoughtspot.com from arg408321@gmail.com
+[2026-05-16 04:07:11] INFO: ✅ Sent to anil.chandra@thoughtspot.com | ID: <1f537b58-dbc0-61f5-01d8-ff4ccdf81c04@gmail.com>
+[2026-05-16 04:07:12] INFO: 📤 Sending to anil.k@corestack.io from arg408321@gmail.com
+[2026-05-16 04:07:19] INFO: 📅 Scheduler service initialized
+[2026-05-16 04:07:20] INFO: ✅ MongoDB connected successfully
+[2026-05-16 04:07:20] INFO: 🚀 Server running on http://localhost:5000
+[2026-05-16 04:07:20] INFO: 🌍 Environment: development
+[2026-05-16 04:07:20] INFO: 🗄️  Database: MongoDB ✅
+[2026-05-16 04:07:20] INFO: ─────────────────────────────────────────
+[2026-05-16 04:07:20] INFO: 📋 Configuration Check:
+[2026-05-16 04:07:20] INFO: ✅ GMAIL_USER     = arg408321@gmail.com
+[2026-05-16 04:07:20] INFO: ✅ GMAIL_APP_PASSWORD = •••••••••••••••• (16 chars ✓)
+[2026-05-16 04:07:20] INFO: ─────────────────────────────────────────
+[2026-05-16 04:07:20] INFO: 🔌 Testing Gmail SMTP connection...
+[2026-05-16 04:07:21] INFO: ✅ SMTP verified for arg408321@gmail.com
+[2026-05-16 04:07:21] INFO: ✅ Gmail SMTP is working — ready to send!
+[2026-05-16 04:07:29] INFO: ::1 - - [15/May/2026:22:37:29 +0000] "GET /api/email/status/26e11660-f898-4f8f-b142-e03c669e6469 HTTP/1.1" 404 45 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
