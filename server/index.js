@@ -104,30 +104,56 @@ const connectDB = async () => {
 connectDB().then(() => {
   app.listen(PORT, async () => {
     logger.info(`🚀 Server running on http://localhost:${PORT}`);
-    logger.info(`📧 Gmail Automation Extension API ready`);
     logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.info(`🗄️  Database: ${mongoose.connection.readyState === 1 ? 'MongoDB ✅' : 'Memory-only mode'}`);
 
-    // ── Startup SMTP check ──────────────────────────────────────────────────
-    const gmailUser = (process.env.GMAIL_USER || '').replace(/^'+|'+$/g, '').trim();
-    const gmailPass = (process.env.GMAIL_APP_PASSWORD || '').replace(/^'+|'+$/g, '').trim();
+    // ── Startup diagnostics — show exactly what is/isn't configured ────────
+    const clean = v => (v || '').replace(/^["'\s]+|["'\s]+$/g, '').trim();
+    const gmailUser = clean(process.env.GMAIL_USER);
+    const gmailPass = clean(process.env.GMAIL_APP_PASSWORD);
+    const passLen   = gmailPass.replace(/\s/g,'').length;
 
-    if (!gmailUser || gmailUser.includes('youremail')) {
-      logger.warn('⚠️  GMAIL_USER not set in .env — configure it in Settings before sending');
-    } else if (!gmailPass || gmailPass.includes('xxxx')) {
-      logger.warn('⚠️  GMAIL_APP_PASSWORD not set in .env — configure it in Settings before sending');
+    logger.info('─────────────────────────────────────────');
+    logger.info('📋 Configuration Check:');
+
+    if (!gmailUser) {
+      logger.error('❌ GMAIL_USER is NOT SET in .env');
+      logger.error('   Fix: Add GMAIL_USER=yourname@gmail.com to server/.env');
     } else {
-      logger.info(`📬 Gmail account: ${gmailUser}`);
-      // Verify SMTP in background (non-blocking)
+      logger.info(`✅ GMAIL_USER     = ${gmailUser}`);
+    }
+
+    if (!gmailPass) {
+      logger.error('❌ GMAIL_APP_PASSWORD is NOT SET in .env');
+      logger.error('   Fix: Add GMAIL_APP_PASSWORD=xxxxxxxxxxxxxx to server/.env');
+      logger.error('   Get it: myaccount.google.com → Security → App Passwords');
+    } else if (passLen !== 16) {
+      logger.warn(`⚠️  GMAIL_APP_PASSWORD is ${passLen} chars (expected 16)`);
+      logger.warn('   Make sure you copied all 16 characters from Google App Passwords');
+    } else {
+      logger.info(`✅ GMAIL_APP_PASSWORD = ${'•'.repeat(passLen)} (${passLen} chars ✓)`);
+    }
+
+    logger.info('─────────────────────────────────────────');
+
+    // ── Live SMTP test on startup ──────────────────────────────────────────
+    if (gmailUser && gmailPass) {
+      logger.info('🔌 Testing Gmail SMTP connection...');
       const { verifyConnection } = require('./services/emailService');
       verifyConnection(gmailUser, gmailPass).then(result => {
         if (result.success) {
-          logger.info('✅ Gmail SMTP verified — ready to send!');
+          logger.info('✅ Gmail SMTP is working — ready to send!');
         } else {
-          logger.error(`❌ Gmail SMTP failed: ${result.message}`);
-          logger.warn('   Check GMAIL_APP_PASSWORD in .env (must be App Password, not account password)');
+          logger.error(`❌ Gmail SMTP FAILED: ${result.message}`);
+          logger.error('   Emails will NOT send until this is fixed.');
+          if (result.message.includes('Invalid login') || result.message.includes('EAUTH')) {
+            logger.error('   → Your App Password is wrong or 2FA is not enabled on your Google account');
+            logger.error('   → Go to: myaccount.google.com → Security → 2-Step Verification → App Passwords');
+          }
         }
       });
+    } else {
+      logger.warn('⏭️  SMTP test skipped — credentials not configured');
     }
   });
 });

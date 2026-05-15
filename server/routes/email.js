@@ -178,17 +178,17 @@ router.post('/send-bulk',
         retryFailed: shouldRetry = true
       } = req.body;
 
-      if (!subject || !htmlContent) {
-        return res.status(400).json({
-          success: false,
-          message: 'Subject and email content are required'
-        });
+      // ── Validate required fields ──────────────────────────────────────────
+      if (!subject || !subject.trim()) {
+        return res.status(400).json({ success: false, message: 'Subject is required' });
+      }
+      if (!htmlContent || !htmlContent.trim()) {
+        return res.status(400).json({ success: false, message: 'Email content is required' });
       }
 
-      // Parse recipients from request
+      // ── Parse recipients ──────────────────────────────────────────────────
       let recipients = [];
 
-      // Option 1: Recipients from JSON body
       if (req.body.recipients) {
         try {
           const parsed = JSON.parse(req.body.recipients);
@@ -198,44 +198,74 @@ router.post('/send-bulk',
         }
       }
 
-      // Option 2: Recipients from CSV file upload
+      // CSV file upload (server-side parsing)
       if (req.files && req.files.csvFile && req.files.csvFile[0]) {
         const csvRecipients = await parseCSV(req.files.csvFile[0].path);
         recipients = [...recipients, ...csvRecipients];
-        // Clean up CSV file
         fs.unlinkSync(req.files.csvFile[0].path);
       }
 
-      if (recipients.length === 0) {
+      // ── Clean & validate each recipient email ─────────────────────────────
+      const validRecipients = recipients
+        .map(r => ({
+          ...r,
+          // Trim whitespace/newlines that CSV parsers sometimes leave
+          email: (r.email || '').replace(/[\s\r\n\t]/g, '').toLowerCase().trim()
+        }))
+        .filter(r => {
+          // Basic email format validation
+          const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(r.email);
+          if (!ok) logger.warn(`⚠️  Skipping invalid email: "${r.email}"`);
+          return ok;
+        });
+
+      // Remove duplicates (same email address)
+      const seen = new Set();
+      const dedupedRecipients = validRecipients.filter(r => {
+        if (seen.has(r.email)) { logger.warn(`⚠️  Duplicate skipped: ${r.email}`); return false; }
+        seen.add(r.email);
+        return true;
+      });
+
+      if (dedupedRecipients.length === 0) {
         return res.status(400).json({
           success: false,
-          message: 'No valid recipients found'
+          message: 'No valid recipient email addresses found. Check your list.'
         });
       }
 
-      // Create and start the queue
+      logger.info(`📋 Valid recipients: ${dedupedRecipients.length} / ${recipients.length}`);
+
+      // ── Use env credentials if not sent from frontend ─────────────────────
+      // Frontend doesn't store SMTP creds — they come from .env
+      const resolvedSmtpUser = (smtpUser || '').trim() || undefined;  // undefined → emailService reads .env
+      const resolvedSmtpPass = (smtpPass || '').trim() || undefined;
+
+      // ── Create and start the queue ────────────────────────────────────────
       const queueId = createQueue({
-        recipients,
-        subject,
-        htmlContent,
+        recipients:  dedupedRecipients,
+        subject:     subject.trim(),
+        htmlContent: htmlContent.trim(),
         attachments: req.files && req.files.attachments ? req.files.attachments : [],
-        fromName,
-        delayMin: parseInt(delayMin),
-        delayMax: parseInt(delayMax),
-        smtpUser,
-        smtpPass,
+        fromName:    (fromName || '').trim() || 'Gmail Automation',
+        delayMin:    Math.max(1, parseInt(delayMin) || 2),
+        delayMax:    Math.max(1, parseInt(delayMax) || 5),
+        smtpUser:    resolvedSmtpUser,
+        smtpPass:    resolvedSmtpPass,
         retryFailed: shouldRetry === 'true' || shouldRetry === true,
-        maxRetries: 2
+        maxRetries:  2
       });
 
       await startQueue(queueId);
 
       res.json({
-        success: true,
+        success:    true,
         queueId,
-        message: `Email queue started with ${recipients.length} recipients`,
-        totalCount: recipients.length
+        message:    `Campaign started with ${dedupedRecipients.length} recipients`,
+        totalCount: dedupedRecipients.length,
+        skipped:    recipients.length - dedupedRecipients.length
       });
+
     } catch (error) {
       next(error);
     }
